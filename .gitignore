@@ -1,3 +1,15 @@
+__pycache__/
+*.pyc
+.env
+.data/
+/data/
+/models/artifacts/*.tmp
+mlruns/
+.pytest_cache/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

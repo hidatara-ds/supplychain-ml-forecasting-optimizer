@@ -1,41 +1,140 @@
-# Supply Chain ML: Forecasting + Replenishment Optimizer
+## Supply Chain ML: Forecasting + Replenishment Optimizer
 
-**What**: End-to-end retail supply chain demo. Generate dummy data → train demand forecast → compute replenishment via LP → serve via FastAPI.
+An end-to-end demo for retail supply chain analytics: generate realistic dummy data, engineer features, train a weekly demand-forecast model, and optimize replenishment under budget using linear programming. Exposed via a FastAPI service.
 
-**Endpoints**
-- `GET /health`
-- `POST /forecast` → body: `{ "horizon_weeks": 8, "pairs": [{"store_id":"S001","product_id":"P001"}] }`
-- `POST /replenish` → body: `{ "target_service": 0.95, "capacity": 50000 }`
+### Tech Stack
+- **Language**: Python 3.11
+- **API**: FastAPI + Uvicorn
+- **ML**: pandas, numpy, scikit-learn, LightGBM (fallback to RandomForest)
+- **Optimization**: SciPy linprog
+- **Packaging**: Docker
 
-**Quickstart**
+### Project Structure
+```
+app/            FastAPI app & services
+  main.py
+  services/
+    inference.py
+    optimizer.py
+etl/            Dummy data + features + processed
+  generate_dummy.py
+  build_features.py
+models/         Training code & artifacts
+  train_forecast.py
+  artifacts/
+scripts/        Utilities (e.g., backtest placeholder)
+tests/          Pytest for API
+docker/         Dockerfile
+```
+
+### Prerequisites
+- Python 3.11
+- Windows PowerShell or a POSIX shell
+- Optional: Docker (24+) for container runs
+
+### Setup (Windows PowerShell)
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+### Setup (macOS/Linux)
 ```bash
-make setup
-make data
-make train
-make run
-# in another shell
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+### Quickstart
+1) Generate data and build features
+```powershell
+python etl/generate_dummy.py
+python etl/build_features.py
+```
+
+2) Train forecasting model
+```powershell
+python models/train_forecast.py
+```
+
+3) Run API
+```powershell
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+4) Smoke tests
+```powershell
+Invoke-RestMethod -Uri "http://localhost:8000/health" -Method Get
+Invoke-RestMethod -Uri "http://localhost:8000/forecast" -Method Post -ContentType "application/json" -Body '{"horizon_weeks":4,"pairs":[{"store_id":"S001","product_id":"P001"}]}'
+Invoke-RestMethod -Uri "http://localhost:8000/replenish" -Method Post -ContentType "application/json" -Body '{"target_service":0.95,"capacity":50000}'
+```
+
+Alternatively, using Make (macOS/Linux or Windows with `make` installed):
+```bash
+make setup && make data && make train && make run
+```
+
+### API Reference
+- **GET `/health`** → `{ "status": "ok" }`
+
+- **POST `/forecast`**
+  - Request
+    ```json
+    { "horizon_weeks": 8, "pairs": [{"store_id":"S001","product_id":"P001"}] }
+    ```
+  - Response (excerpt)
+    ```json
+    {
+      "horizon_weeks": 8,
+      "forecasts": [
+        {"store_id":"S001","product_id":"P001","forecast":[6.2,6.1,6.0, ...]}
+      ]
+    }
+    ```
+
+- **POST `/replenish`**
+  - Request
+    ```json
+    { "target_service": 0.95, "capacity": 50000 }
+    ```
+  - Response (excerpt)
+    ```json
+    {
+      "target_service": 0.95,
+      "capacity": 50000.0,
+      "orders": [
+        {"store_id":"S001","product_id":"P001","order_qty":12,"unit_price":50.0,"cost":600}
+      ]
+    }
+    ```
+
+Notes:
+- If no trained model is found, `/forecast` returns a reasonable naive forecast.
+- Replenishment solves a linear program; if the solver fails, it falls back to needs.
+
+### Testing
+```powershell
+pytest -q
+```
+
+### Docker
+```powershell
+docker build -t scm-ml .
+docker run -p 8000:8000 scm-ml
 curl http://localhost:8000/health
 ```
 
-**Docker**
-```bash
-docker build -t scm-ml .
-docker run -p 8000:8000 scm-ml
-```
+### Troubleshooting
+- Parquet errors: ensure `pyarrow` is installed (included in `requirements.txt`).
+- Windows without `make`: use the PowerShell commands above or install make via `choco install make`.
+- Port already in use: change `--port 8001` when running Uvicorn.
 
-**Structure**
-```
-approot/
-  app/            # FastAPI app & services
-  etl/            # dummy data + features + load
-  models/         # training & artifacts
-  scripts/        # backtest/sim
-  tests/          # pytest
-```
-
-**Roadmap**
+### Roadmap
 - ETA/lead-time module
 - Anomaly detection
-- AWS deploy notes (ECS/Lambda)
+- Deployment notes for AWS (ECS/Lambda)
 
 # supplychain-ml-forecasting-optimizer

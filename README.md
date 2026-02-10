@@ -2,6 +2,19 @@
 
 An end-to-end demo for retail supply chain analytics: generate realistic dummy data, engineer features, train a weekly demand-forecast model, and optimize replenishment under budget using linear programming. Exposed via a FastAPI service.
 
+### Problem Contract
+
+This project is driven by a clear problem contract that defines what is forecasted and what the optimizer decides:
+
+- **Forecast target**: weekly `demand_qty` per SKU × location, with horizon \(H = 4\) weeks ahead.
+- **Optimizer output**: `order_qty` per SKU–location–period, minimizing total inventory cost (holding + stockout + ordering) under budget/capacity.
+- **Key constraints**: lead time, MOQ, capacity, optional shelf-life, and budget cap.
+- **Pass/fail KPIs**:
+  - Forecasting: WAPE and MASE vs naive baseline.
+  - Inventory/ops: fill-rate, stockout days, and total cost vs baseline or target.
+
+For a more detailed description, see `docs/problem_contract.md`.
+
 ### Tech Stack
 - **Language**: Python 3.11
 - **API**: FastAPI + Uvicorn

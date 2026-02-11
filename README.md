@@ -62,23 +62,43 @@ pip install -r requirements.txt
 ```
 
 ### Quickstart
+
+#### Option A: Training & Evaluation Pipeline
 1) Generate data and build features
 ```powershell
 python etl/generate_dummy.py
 python etl/build_features.py
 ```
 
-2) Train forecasting model
+2) Train forecasting model (with time-based split)
 ```powershell
-python models/train_forecast.py
+python -m src.forecasting.train
 ```
 
-3) Run API
+3) Evaluate and generate predictions
+```powershell
+python -m src.forecasting.evaluate
+```
+
+#### Option B: Streamlit Dashboard (Visual)
+Setelah menjalankan pipeline di atas, jalankan dashboard:
+```powershell
+streamlit run streamlit_app.py
+```
+Dashboard akan terbuka di browser (default: `http://localhost:8501`).
+
+**Fitur Dashboard:**
+- 📈 Summary metrics (WAPE untuk naive, seasonal, model)
+- 📉 Forecast vs Actual comparison chart (interaktif)
+- 📊 Error distribution histograms
+- 🔍 Detail metrics per SKU-location (opsional)
+
+#### Option C: FastAPI Service
 ```powershell
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-4) Smoke tests
+4) Smoke tests (untuk API)
 ```powershell
 Invoke-RestMethod -Uri "http://localhost:8000/health" -Method Get
 Invoke-RestMethod -Uri "http://localhost:8000/forecast" -Method Post -ContentType "application/json" -Body '{"horizon_weeks":4,"pairs":[{"store_id":"S001","product_id":"P001"}]}'
@@ -145,9 +165,25 @@ curl http://localhost:8000/health
 - Windows without `make`: use the PowerShell commands above or install make via `choco install make`.
 - Port already in use: change `--port 8001` when running Uvicorn.
 
+### Deployment
+
+#### Streamlit Cloud (Recommended for MVP)
+1. Push repo ke GitHub
+2. Login ke [streamlit.io](https://streamlit.io/cloud)
+3. Connect GitHub repo
+4. Set main file: `streamlit_app.py`
+5. Deploy!
+
+**Note:** Pastikan `data/processed/predictions.csv` sudah ada di repo atau generate via GitHub Actions.
+
+#### Vercel (Future: Next.js Frontend)
+Untuk deployment production dengan custom UI, bisa build Next.js frontend yang call FastAPI backend.
+
 ### Roadmap
+- ✅ Streamlit dashboard untuk visualisasi
 - ETA/lead-time module
 - Anomaly detection
 - Deployment notes for AWS (ECS/Lambda)
+- Next.js frontend untuk production
 
 # supplychain-ml-forecasting-optimizer

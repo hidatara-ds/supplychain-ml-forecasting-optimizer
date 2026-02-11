@@ -15,6 +15,20 @@ This project is driven by a clear problem contract that defines what is forecast
 
 For a more detailed description, see `docs/problem_contract.md`.
 
+### Preview
+
+Streamlit dashboard screenshots (example):
+
+- Landing page (metrics + charts):
+  - `assets/landingpage1.png`
+  - `assets/landingpage2.png`
+- SKU-location details table:
+  - `assets/detail.png`
+
+![Dashboard Preview 1](assets/landingpage1.png)
+![Dashboard Preview 2](assets/landingpage2.png)
+![SKU-Location Details](assets/detail.png)
+
 ### Tech Stack
 - **Language**: Python 3.11
 - **API**: FastAPI + Uvicorn

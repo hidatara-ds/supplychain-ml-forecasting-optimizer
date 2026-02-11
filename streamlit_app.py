@@ -62,7 +62,7 @@ def main():
     # Sidebar
     with st.sidebar:
         st.header("⚙️ Settings")
-        show_details = st.checkbox("Tampilkan Detail per SKU-Location", value=False)
+        show_details = st.checkbox("Show SKU-Location details", value=False)
         
         if st.button("🔄 Refresh Data"):
             st.cache_data.clear()
@@ -224,7 +224,7 @@ def main():
 
     # --- Per SKU-Location Metrics (if requested) ---
     if show_details:
-        st.header("🔍 Detail per SKU-Location")
+        st.header("🔍 SKU-Location details")
 
         # Hitung WAPE per pair
         metrics_list = []

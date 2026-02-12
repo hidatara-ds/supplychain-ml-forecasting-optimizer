@@ -3,7 +3,6 @@ wheel>=0.44.0
 fastapi==0.115.0
 uvicorn==0.30.6
 pandas==2.2.2
-plotly>=5.18.0
 numpy==1.26.4
 scikit-learn==1.5.1
 lightgbm==4.5.0
@@ -14,4 +13,3 @@ orjson==3.10.7
 pytest==8.3.3
 streamlit==1.39.0
 plotly==5.24.1
-

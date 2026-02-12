@@ -14,7 +14,6 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      # If your code lives in src/, this avoids ModuleNotFoundError during pytest
       PYTHONPATH: src
       PIP_DISABLE_PIP_VERSION_CHECK: "1"
       PIP_NO_PYTHON_VERSION_WARNING: "1"
@@ -28,14 +27,12 @@ jobs:
         with:
           python-version: "3.11"
           cache: "pip"
-          cache-dependency-path: |
-            requirements.txt
+          cache-dependency-path: requirements.txt
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip wheel
           python -m pip install -r requirements.txt
-          # Ensure test runner exists even if not in requirements yet
           python -m pip install pytest
 
       - name: Show environment (debug)
@@ -47,15 +44,21 @@ jobs:
 
       - name: Ensure tests exist (smoke test)
         run: |
-          if [ ! -d "tests" ]; then
-            mkdir -p tests
-          fi
-          if ! ls tests/test_*.py >/dev/null 2>&1; then
-            cat > tests/test_smoke.py << 'EOF'
-def test_smoke():
-    assert True
-EOF
-          fi
+          python - <<'PY'
+          from pathlib import Path
+
+          tests_dir = Path("tests")
+          tests_dir.mkdir(parents=True, exist_ok=True)
+
+          # Create a minimal smoke test if none exists
+          existing = list(tests_dir.glob("test_*.py"))
+          if not existing:
+              (tests_dir / "test_smoke.py").write_text(
+                  "def test_smoke():\n"
+                  "    assert True\n"
+              )
+          print("Tests:", [p.name for p in tests_dir.glob("test_*.py")])
+          PY
 
       - name: Run tests
         run: |
